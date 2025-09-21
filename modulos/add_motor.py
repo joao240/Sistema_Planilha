@@ -1,10 +1,12 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit,
-    QPushButton, QComboBox, QFormLayout, QHBoxLayout,
-    QFrame
+    QPushButton, QComboBox, QFormLayout, QHBoxLayout, QFrame, QTabWidget,
+    QScrollArea
 )
 from PyQt5.QtCore import Qt
 import sys
+
+
 class addmotorWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -14,7 +16,7 @@ class addmotorWidget(QWidget):
         self.setStyleSheet(self.get_styles())
 
     def setup_ui(self):
-        main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(12)
 
@@ -25,115 +27,205 @@ class addmotorWidget(QWidget):
 
         card = QFrame()
         card.setObjectName("card")
-        card_layout = QVBoxLayout()
-        card_layout.setContentsMargins(20, 20, 20, 20)
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(12, 12, 12, 12)
         card_layout.setSpacing(12)
 
-        form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignLeft)
-        form.setFormAlignment(Qt.AlignTop)
-        form.setSpacing(10)
+        tabs = QTabWidget()
+        tabs.setTabPosition(QTabWidget.North)
+        tabs.setMovable(False)
 
-         # Chave Carenado
+        # Helper: cria uma aba com scroll contendo um form (lista de (label, widget))
+        def make_tab(tab_title, rows):
+            content_widget = QWidget()
+            content_layout = QVBoxLayout(content_widget)
+            content_layout.setContentsMargins(8, 8, 8, 8)
+            content_layout.setSpacing(8)
+
+            form = QFormLayout()
+            form.setLabelAlignment(Qt.AlignLeft)
+            form.setFormAlignment(Qt.AlignTop)
+            form.setSpacing(10)
+
+            for label_text, w in rows:
+                # se w for QTextEdit e você quer ocupar mais espaço, setMinimumHeight
+                if isinstance(w, QTextEdit):
+                    w.setMinimumHeight(120)
+                form.addRow(label_text, w)
+
+            # Envolver o form num widget para o scroll
+            form_container = QWidget()
+            form_container.setLayout(form)
+
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setWidget(form_container)
+
+            content_layout.addWidget(scroll)
+            tab = QWidget()
+            tab.setLayout(content_layout)
+            tabs.addTab(tab, tab_title)
+            return tab
+
+        # -------------------- Campos (usando os mesmos nomes que você tinha) --------------------
+        # Identificação / Gerais
         self.input_chaveCarenado = QLineEdit()
         self.input_chaveCarenado.setPlaceholderText("Ex: MSIK-25Carenado")
-        form.addRow("ChaveCarenado:", self.input_chaveCarenado)
-
-         # Modelo
         self.input_Modelo = QLineEdit()
         self.input_Modelo.setPlaceholderText("Ex: MSIK-25")
-        form.addRow("Modelo:", self.input_Modelo)
-
-         # Fornecedor
         self.input_Fornecedor = QLineEdit()
         self.input_Fornecedor.setPlaceholderText("Ex: KF-POWER")
-        form.addRow("Modelo:", self.input_Fornecedor)
-
-         # Kva stand by
         self.input_standby = QLineEdit()
         self.input_standby.setPlaceholderText("Ex: 25")
-        form.addRow("Modelo:", self.input_standby)
+        self.input_kva_prime = QLineEdit()
+        self.input_kva_prime.setPlaceholderText("Ex: 23")
+        self.input_modelo_2 = QLineEdit()
+        self.input_modelo_2.setPlaceholderText("Ex: 4YT23-20D")
 
-        # Kva Prime
-        # Modelo
-        # Acoplamento
-        # Comprimento
-        # Largura
-        # Altura
-        # Potencia(Cv)
-        # Injeção
-        # Marca Bomba Injetora
-        # Marca KIT REV.
-        # Diamentro/Polegada
-        # Preço
-        # Peso
-        # Vibra stop
-        # Bateria
-        # Grupo
-        # Modelo T
-        # Localização
-        # Tanque L
-        # FCI
-        # PRAZO DE ENTREGA
-        # Emissão
-        # CONSUMO DE COMBUSTIVEL
-        # Capacidade do LIQUIDO DE ARREFECIMENTO (L)
-        # MARCA E MODELO FILTRO DE AR PRIMARIO
-        # MARCA E MODELO FILTRO DE AR SECUNDARIO
-        # MARCA E MODELO FILTRO DE COMBUSTIVEL 
-        # MARCA E MODELO FILTRO DE COMBUSTIVEL PRIMERIO + SEPARADOR DE AGUA
-        # MARCA E MODELO FILTRO DE COMBUSTIVEL SECUNDARIO
-        # MARCA E MODELO FILTRO DE OLEO LUBRIFICANTE
-        # MARCA E MODELO OLEO LUBRIFICANTE SECUNDARIO
-        # MARCA E MODELO CORREIA DO ALTERNADOR
-        # AUTONOMIA PARA 8 HORAS A 75% DE CARGA 
-        # KW STAND BY
-        # KW PRIME
-        # MODELO MS GERADORES
+        make_tab("Identificação", [
+            ("Chave Carenado:", self.input_chaveCarenado),
+            ("Modelo:", self.input_Modelo),
+            ("Fornecedor:", self.input_Fornecedor),
+            ("KVA Stand By:", self.input_standby),
+            ("KVA Prime:", self.input_kva_prime),
+            ("Modelo 2:", self.input_modelo_2),
+        ])
 
+        # Dimensões & Peso
+        self.input_Aclopamento = QLineEdit()
+        self.input_Aclopamento.setPlaceholderText("Ex: SAE 4 / 7.5")
+        self.input_Comprimento = QLineEdit()
+        self.input_Comprimento.setPlaceholderText("Ex: 1870")
+        self.input_Largura = QLineEdit()
+        self.input_Largura.setPlaceholderText("Ex: 750")
+        self.input_Altura = QLineEdit()
+        self.input_Altura.setPlaceholderText("Ex: 1025")
+        self.input_Peso = QLineEdit()
+        self.input_Peso.setPlaceholderText("Ex: 350")
+        self.input_Vibra_stop = QLineEdit()
+        self.input_Vibra_stop.setPlaceholderText("Ex: ")
 
+        make_tab("Dimensões & Peso", [
+            ("Aclopamento:", self.input_Aclopamento),
+            ("Comprimento (mm):", self.input_Comprimento),
+            ("Largura (mm):", self.input_Largura),
+            ("Altura (mm):", self.input_Altura),
+            ("Peso (kg):", self.input_Peso),
+            ("Vibra stop:", self.input_Vibra_stop),
+        ])
 
+        # Características técnicas
+        self.input_Potencia = QLineEdit()
+        self.input_Potencia.setPlaceholderText("Ex: 27")
+        self.input_Injecao = QLineEdit()
+        self.input_Injecao.setPlaceholderText("Ex: mecânico")
+        self.input_Marca_Bomba_Injetora = QComboBox()
+        self.input_Marca_Bomba_Injetora.addItems(["Mecânico", "Eletrônico"])
+        self.input_Marca_KIT_REV = QLineEdit()
+        self.input_Marca_KIT_REV.setPlaceholderText("Ex: ")
+        self.input_Diamentro_Polegada = QLineEdit()
+        self.input_Diamentro_Polegada.setPlaceholderText("Ex: ")
+        self.input_Preco = QLineEdit()
+        self.input_Preco.setPlaceholderText("Ex: R$ 0,00")
+        self.input_Bateria = QLineEdit()
+        self.input_Bateria.setPlaceholderText("Ex: 12V")
+        self.input_Grupo = QLineEdit()
+        self.input_Grupo.setPlaceholderText("Ex: Grupo XYZ")
+        self.input_Modelo_T = QLineEdit()
+        self.input_Modelo_T.setPlaceholderText("Ex: ")
+        self.input_kw_standby = QLineEdit()
+        self.input_kw_standby.setPlaceholderText("Ex: ")
+        self.input_kw_prime = QLineEdit()
+        self.input_kw_prime.setPlaceholderText("Ex: ")
+        self.input_MODELO_MS_GERADORES = QLineEdit()
+        self.input_MODELO_MS_GERADORES.setPlaceholderText("Ex: ")
 
-        # Tipo de motor
-        self.input_tipo_motor = QComboBox()
-        self.input_tipo_motor.addItems(["Diesel", "Gasolina", "GNV", "Elétrico"])
-        form.addRow("Tipo de motor:", self.input_tipo_motor)
+        make_tab("Características Técnicas", [
+            ("Potência (Cv):", self.input_Potencia),
+            ("Injeção:", self.input_Injecao),
+            ("Bomba Injetora:", self.input_Marca_Bomba_Injetora),
+            ("Marca KIT REV.:", self.input_Marca_KIT_REV),
+            ("Diâmetro / Polegada:", self.input_Diamentro_Polegada),
+            ("Preço:", self.input_Preco),
+            ("Bateria:", self.input_Bateria),
+            ("Grupo:", self.input_Grupo),
+            ("Modelo T:", self.input_Modelo_T),
+            ("KW Stand By:", self.input_kw_standby),
+            ("KW Prime:", self.input_kw_prime),
+            ("Modelo MS Geradores:", self.input_MODELO_MS_GERADORES),
+        ])
 
-        # Potência
-        self.input_potencia = QLineEdit()
-        self.input_potencia.setPlaceholderText("Ex: 1000 kW")
-        form.addRow("Potência do motor:", self.input_potencia)
+        # Tanque & Consumo
+        self.input_Tanque_L = QLineEdit()
+        self.input_Tanque_L.setPlaceholderText("Ex: ")
+        self.input_FCI = QLineEdit()
+        self.input_FCI.setPlaceholderText("Ex: ")
+        self.input_Consumo_Combustivel = QLineEdit()
+        self.input_Consumo_Combustivel.setPlaceholderText("Ex: ")
+        self.input_Capacidade_LIQUIDO_ARREFECIMENTO = QLineEdit()
+        self.input_Capacidade_LIQUIDO_ARREFECIMENTO.setPlaceholderText("Ex: ")
+        self.input_AUTONOMIA_8_HORAS_75_CARGA = QLineEdit()
+        self.input_AUTONOMIA_8_HORAS_75_CARGA.setPlaceholderText("Ex: ")
 
-        # Marca
-        self.input_marca = QLineEdit()
-        self.input_marca.setPlaceholderText("Ex: Cummins")
-        form.addRow("Marca do motor:", self.input_marca)
+        make_tab("Tanque & Consumo", [
+            ("Tanque (L):", self.input_Tanque_L),
+            ("FCI:", self.input_FCI),
+            ("Consumo Combustível:", self.input_Consumo_Combustivel),
+            ("Capacidade Líq. Arrefecimento (L):", self.input_Capacidade_LIQUIDO_ARREFECIMENTO),
+            ("Autonomia 8h @ 75%:", self.input_AUTONOMIA_8_HORAS_75_CARGA),
+        ])
 
-        # Modelo
-        self.input_modelo = QLineEdit()
-        self.input_modelo.setPlaceholderText("Ex: X15")
-        form.addRow("Modelo do motor:", self.input_modelo)
+        # Filtros & Lubrificação
+        self.input_MARCA_MODELO_FILTRO_AR_PRIMARIO = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_AR_PRIMARIO.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_FILTRO_AR_SECUNDARIO = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_AR_SECUNDARIO.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_PRIMERIO = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_PRIMERIO.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_SECUNDARIO = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_SECUNDARIO.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_FILTRO_OLEO_LUBRIFICANTE = QLineEdit()
+        self.input_MARCA_MODELO_FILTRO_OLEO_LUBRIFICANTE.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_OLEO_LUBRIFICANTE_SECUNDARIO = QLineEdit()
+        self.input_MARCA_MODELO_OLEO_LUBRIFICANTE_SECUNDARIO.setPlaceholderText("Ex: ")
+        self.input_MARCA_MODELO_CORREIA_ALTERNADOR = QLineEdit()
+        self.input_MARCA_MODELO_CORREIA_ALTERNADOR.setPlaceholderText("Ex: ")
+
+        make_tab("Filtros & Lubrificação", [
+            ("Filtro Ar Primário:", self.input_MARCA_MODELO_FILTRO_AR_PRIMARIO),
+            ("Filtro Ar Secundário:", self.input_MARCA_MODELO_FILTRO_AR_SECUNDARIO),
+            ("Filtro Combustível:", self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL),
+            ("Filtro Comb. + Separador Água:", self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_PRIMERIO),
+            ("Filtro Combustível Secundário:", self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_SECUNDARIO),
+            ("Filtro Óleo Lubrificante:", self.input_MARCA_MODELO_FILTRO_OLEO_LUBRIFICANTE),
+            ("Óleo Lubrificante Secundário:", self.input_MARCA_MODELO_OLEO_LUBRIFICANTE_SECUNDARIO),
+            ("Correia Alternador:", self.input_MARCA_MODELO_CORREIA_ALTERNADOR),
+        ])
 
         # Observações
         self.input_obs = QTextEdit()
         self.input_obs.setPlaceholderText("Observações adicionais sobre o motor...")
-        card_layout.addLayout(form)
-        card_layout.addWidget(QLabel("Observações adicionais:"))
-        card_layout.addWidget(self.input_obs)
+        make_tab("Observações", [
+            ("Observações:", self.input_obs),
+        ])
 
+        # Coloca as tabs no card
+        card_layout.addWidget(tabs)
+
+        # Botões finais
         btns_layout = QHBoxLayout()
         self.btn_add = QPushButton("Adicionar Motor")
         self.btn_cancel = QPushButton("Cancelar")
         btns_layout.addWidget(self.btn_add)
         btns_layout.addWidget(self.btn_cancel)
-
         card_layout.addLayout(btns_layout)
-        card.setLayout(card_layout)
+
         main_layout.addWidget(card)
-        self.setLayout(main_layout)
 
     def get_styles(self):
-        return  """
+        return """
         QWidget {
             background-color: #0f1720;
             color: #e6eef8;
@@ -159,7 +251,7 @@ class addmotorWidget(QWidget):
             padding: 8px;
             color: #dbeafe;
         }
-        QComboBox { padding-left: 6px; }
+        QComboBox { padding-left: 6px; min-height: 28px; }
         QLabel { color: #cfe8ff; }
         QPushButton {
             background-color: #1f6feb;
@@ -170,7 +262,24 @@ class addmotorWidget(QWidget):
         }
         QPushButton:hover { background-color: #3b82f6; }
         QPushButton:disabled { background-color: #264653; color: #99a3b3 }
-        #footer { color: #9fb3d6; font-size: 12px; margin-top: 8px }
+
+        /* Garantir texto das abas visível no tema escuro */
+        QTabBar::tab {
+            background: #0b1220;
+            color: #cfe8ff;
+            padding: 8px 14px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+        QTabBar::tab:selected {
+            background: #1f6feb;
+            color: white;
+        }
+        QTabWidget::pane {
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            margin-top: -2px;
+        }
         """
 
 if __name__ == "__main__":
