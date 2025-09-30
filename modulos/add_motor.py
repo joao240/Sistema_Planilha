@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit,
     QPushButton, QComboBox, QFormLayout, QHBoxLayout, QFrame, QTabWidget,
-    QScrollArea
+    QScrollArea, QMessageBox
 )
+import mysql.connector
+
 from PyQt5.QtCore import Qt
 import sys
 
@@ -14,6 +16,79 @@ class addmotorWidget(QWidget):
         self.showMaximized()
         self.setup_ui()
         self.setStyleSheet(self.get_styles())
+
+        self.btn_add.clicked.connect(self.salvar_motor_no_banco) 
+
+    def salvar_motor_no_banco(self):
+        try:
+            # 1. Pegar dados dos inputs
+            dados = {
+                "chave_carenado": self.input_chaveCarenado.text(),
+                "modelo": self.input_Modelo.text(),
+                "fornecedor": self.input_Fornecedor.text(),
+                "kva_standby": self.input_standby.text(),
+                "kva_prime": self.input_kva_prime.text(),
+                "modelo_2": self.input_modelo_2.text(),
+                "acoplamento": self.input_Aclopamento.text(),
+                "comprimento": self.input_Comprimento.text(),
+                "largura": self.input_Largura.text(),
+                "altura": self.input_Altura.text(),
+                "peso": self.input_Peso.text(),
+                "vibra_stop": self.input_Vibra_stop.text(),
+                "potencia": self.input_Potencia.text(),
+                "injecao": self.input_Injecao.text(),
+                "bomba_injetora": self.input_Marca_Bomba_Injetora.currentText(),
+                "kit_rev": self.input_Marca_KIT_REV.text(),
+                "diametro_polegada": self.input_Diamentro_Polegada.text(),
+                "preco": self.input_Preco.text(),
+                "bateria": self.input_Bateria.text(),
+                "grupo": self.input_Grupo.text(),
+                "modelo_t": self.input_Modelo_T.text(),
+                "kw_standby": self.input_kw_standby.text(),
+                "kw_prime": self.input_kw_prime.text(),
+                "modelo_ms_geradores": self.input_MODELO_MS_GERADORES.text(),
+                "tanque_l": self.input_Tanque_L.text(),
+                "fci": self.input_FCI.text(),
+                "consumo_combustivel": self.input_Consumo_Combustivel.text(),
+                "capacidade_arrefecimento": self.input_Capacidade_LIQUIDO_ARREFECIMENTO.text(),
+                "autonomia_8h": self.input_AUTONOMIA_8_HORAS_75_CARGA.text(),
+                "filtro_ar_primario": self.input_MARCA_MODELO_FILTRO_AR_PRIMARIO.text(),
+                "filtro_ar_secundario": self.input_MARCA_MODELO_FILTRO_AR_SECUNDARIO.text(),
+                "filtro_combustivel": self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL.text(),
+                "filtro_combustivel_primeiro": self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_PRIMERIO.text(),
+                "filtro_combustivel_secundario": self.input_MARCA_MODELO_FILTRO_COMBUSTIVEL_SECUNDARIO.text(),
+                "filtro_oleo_lubrificante": self.input_MARCA_MODELO_FILTRO_OLEO_LUBRIFICANTE.text(),
+                "oleo_lubrificante_secundario": self.input_MARCA_MODELO_OLEO_LUBRIFICANTE_SECUNDARIO.text(),
+                "correia_alternador": self.input_MARCA_MODELO_CORREIA_ALTERNADOR.text(),
+                "observacoes": self.input_obs.toPlainText()
+            }
+
+            # 2. Conectar ao MySQL
+            conn = mysql.connector.connect(
+                host="localhost",
+                user="root",        # ajuste para o seu usuário
+                database="power_manager"
+            )
+            cursor = conn.cursor()
+
+            # 3. Montar o INSERT dinamicamente
+            colunas = ", ".join(dados.keys())
+            valores = ", ".join(["%s"] * len(dados))
+            sql = f"INSERT INTO motores ({colunas}) VALUES ({valores})"
+
+            cursor.execute(sql, tuple(dados.values()))
+            conn.commit()
+
+            QMessageBox.information(self, "Sucesso", "Motor adicionado ao banco com sucesso!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao salvar no banco: {e}")
+
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            if 'conn' in locals() and conn.is_connected():
+                conn.close()
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -103,7 +178,7 @@ class addmotorWidget(QWidget):
         self.input_Peso = QLineEdit()
         self.input_Peso.setPlaceholderText("Ex: 350")
         self.input_Vibra_stop = QLineEdit()
-        self.input_Vibra_stop.setPlaceholderText("Ex: ")
+        self.input_Vibra_stop.setPlaceholderText("Ex: 3/8 mini")
 
         make_tab("Dimensões & Peso", [
             ("Aclopamento:", self.input_Aclopamento),
@@ -122,13 +197,13 @@ class addmotorWidget(QWidget):
         self.input_Marca_Bomba_Injetora = QComboBox()
         self.input_Marca_Bomba_Injetora.addItems(["Mecânico", "Eletrônico"])
         self.input_Marca_KIT_REV = QLineEdit()
-        self.input_Marca_KIT_REV.setPlaceholderText("Ex: ")
+        self.input_Marca_KIT_REV.setPlaceholderText("Ex: WOODWARD")
         self.input_Diamentro_Polegada = QLineEdit()
-        self.input_Diamentro_Polegada.setPlaceholderText("Ex: ")
+        self.input_Diamentro_Polegada.setPlaceholderText("Ex: 2\" ")
         self.input_Preco = QLineEdit()
-        self.input_Preco.setPlaceholderText("Ex: R$ 0,00")
+        self.input_Preco.setPlaceholderText("Ex: MSIK")
         self.input_Bateria = QLineEdit()
-        self.input_Bateria.setPlaceholderText("Ex: 12V")
+        self.input_Bateria.setPlaceholderText("Ex: 12Vcc = 1 bataria de 60 A/H")
         self.input_Grupo = QLineEdit()
         self.input_Grupo.setPlaceholderText("Ex: Grupo XYZ")
         self.input_Modelo_T = QLineEdit()
