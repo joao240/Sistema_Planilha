@@ -8,7 +8,6 @@ import mysql.connector
 from PyQt5.QtCore import Qt
 import sys
 
-
 class addmotorWidget(QWidget):
     def __init__(self):
         super().__init__()

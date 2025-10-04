@@ -8,6 +8,8 @@ import sys
 
 from modulos.add_motor import addmotorWidget
 
+    
+
 class OrçamentoWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -15,6 +17,11 @@ class OrçamentoWidget(QWidget):
         self.setMinimumSize(780, 680)
         self.setup_ui()
         self.setStyleSheet(self.get_styles())
+
+    def abrir_modal_motor(self):
+        self.modal_motor = addmotorWidget()
+        self.modal_motor.show()
+        self.hide()
 
     def setup_ui(self):
         main_layout = QVBoxLayout()
@@ -29,8 +36,6 @@ class OrçamentoWidget(QWidget):
         btn_abrir = QPushButton("Adicionar Motor")
         btn_abrir.clicked.connect(self.abrir_modal_motor)
         main_layout.addWidget(btn_abrir)
-
-        
 
         card = QFrame()
         card.setObjectName("card")
@@ -129,10 +134,7 @@ class OrçamentoWidget(QWidget):
         main_layout.addWidget(footer)
 
         self.setLayout(main_layout)
-
-    def abrir_modal_motor(self):
-        self.modal_motor = addmotorWidget()
-        self.modal_motor.show()
+  
 
     def get_form_data(self):
         data = {
@@ -220,6 +222,7 @@ class OrçamentoWidget(QWidget):
         #footer { color: #9fb3d6; font-size: 12px; margin-top: 8px }
         """
 
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
