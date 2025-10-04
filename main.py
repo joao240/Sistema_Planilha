@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 import sys
 
+from modulos.add_motor import addmotorWidget
 
 class OrçamentoWidget(QWidget):
     def __init__(self):
@@ -24,6 +25,12 @@ class OrçamentoWidget(QWidget):
         header.setObjectName("header")
         header.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(header)
+
+        btn_abrir = QPushButton("Adicionar Motor")
+        btn_abrir.clicked.connect(self.abrir_modal_motor)
+        main_layout.addWidget(btn_abrir)
+
+        
 
         card = QFrame()
         card.setObjectName("card")
@@ -122,6 +129,10 @@ class OrçamentoWidget(QWidget):
         main_layout.addWidget(footer)
 
         self.setLayout(main_layout)
+
+    def abrir_modal_motor(self):
+        self.modal_motor = addmotorWidget()
+        self.modal_motor.show()
 
     def get_form_data(self):
         data = {

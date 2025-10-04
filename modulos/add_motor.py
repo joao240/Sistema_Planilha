@@ -21,7 +21,6 @@ class addmotorWidget(QWidget):
 
     def salvar_motor_no_banco(self):
         try:
-            # 1. Pegar dados dos inputs
             dados = {
                 "chave_carenado": self.input_chaveCarenado.text(),
                 "modelo": self.input_Modelo.text(),
@@ -142,8 +141,6 @@ class addmotorWidget(QWidget):
             tabs.addTab(tab, tab_title)
             return tab
 
-        # -------------------- Campos (usando os mesmos nomes que você tinha) --------------------
-        # Identificação / Gerais
         self.input_chaveCarenado = QLineEdit()
         self.input_chaveCarenado.setPlaceholderText("Ex: MSIK-25Carenado")
         self.input_Modelo = QLineEdit()
