@@ -14,7 +14,7 @@ class OrçamentoWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Orçamento Técnico-Comercial")
-        self.setMinimumSize(780, 680)
+        self.showMaximized()
         self.setup_ui()
         self.setStyleSheet(self.get_styles())
 

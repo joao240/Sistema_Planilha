@@ -8,6 +8,8 @@ import mysql.connector
 from PyQt5.QtCore import Qt
 import sys
 
+
+
 class addmotorWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -97,6 +99,10 @@ class addmotorWidget(QWidget):
         header.setObjectName("header")
         header.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(header)
+
+        btn_voltar = QPushButton("Voltar")
+        btn_voltar.clicked.connect(self.voltar_para_orcamento)
+        main_layout.addWidget(btn_voltar)
 
         card = QFrame()
         card.setObjectName("card")
@@ -294,6 +300,14 @@ class addmotorWidget(QWidget):
         card_layout.addLayout(btns_layout)
 
         main_layout.addWidget(card)
+
+    def voltar_para_orcamento(self):
+        from main import OrçamentoWidget
+        
+        self.orcamento_window = OrçamentoWidget()
+        self.orcamento_window.show()
+        self.close()
+        
 
     def get_styles(self):
         return """
