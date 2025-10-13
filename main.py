@@ -118,6 +118,10 @@ class OrçamentoWidget(QWidget):
         self.input_quant.setPlaceholderText("Ex: 1")
         form.addRow("Quantidade de geradores:", self.input_quant)
 
+        btn_criar_orcamento = QPushButton("Criar Orçamento")
+        btn_criar_orcamento.setObjectName("btn-criar")
+        btn_criar_orcamento.clicked.connect(lambda: print(self.get_form_data()))
+
         
 
         btns_layout = QHBoxLayout()

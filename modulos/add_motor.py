@@ -366,9 +366,3 @@ class addmotorWidget(QWidget):
             margin-top: -2px;
         }
         """
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = addmotorWidget()
-    win.showMaximized()
-    sys.exit(app.exec_())
