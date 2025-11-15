@@ -209,7 +209,7 @@ class addmotorWidget(QWidget):
         self.input_Grupo = QLineEdit()
         self.input_Grupo.setPlaceholderText("Ex: Grupo XYZ")
         self.input_Modelo_T = QLineEdit()
-        self.input_Modelo_T.setPlaceholderText("Ex: ")
+        self.input_Modelo_T.setPlaceholderText("Ex: Metálico")
         self.input_kw_standby = QLineEdit()
         self.input_kw_standby.setPlaceholderText("Ex: ")
         self.input_kw_prime = QLineEdit()
