@@ -1,14 +1,15 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit,
     QPushButton, QComboBox, QFormLayout, QHBoxLayout,
-    QFrame
+    QFrame, QMessageBox
 )
 from PyQt5.QtCore import Qt
 import sys
 
+# Importa função do motor
+from config.padronizacao import recomendar_motor
 from modulos.add_motor import addmotorWidget
 
-    
 
 class OrçamentoWidget(QWidget):
     def __init__(self):
@@ -57,7 +58,6 @@ class OrçamentoWidget(QWidget):
         self.input_cargo = QLineEdit()
         self.input_cargo.setPlaceholderText("Ex: CEO")
         form.addRow("2) Qual seu Cargo?", self.input_cargo)
-        
 
         # 3) Email
         self.input_email = QLineEdit()
@@ -97,12 +97,12 @@ class OrçamentoWidget(QWidget):
 
         # 9) Aberto ou silenciado
         self.combo_tipo = QComboBox()
-        self.combo_tipo.addItems(["Silenciado", "Aberto"])  
+        self.combo_tipo.addItems(["Silenciado", "Aberto"])
         form.addRow("9) Será aberto ou silenciado?", self.combo_tipo)
 
         # 10) Transferência automática / Partida manual
         self.combo_partida = QComboBox()
-        self.combo_partida.addItems(["Automática (ATS)", "Partida manual"])  
+        self.combo_partida.addItems(["Automática (ATS)", "Partida manual"])
         form.addRow("10) Será com transferência automática ou partida manual?", self.combo_partida)
 
         card_layout.addLayout(form)
@@ -118,18 +118,67 @@ class OrçamentoWidget(QWidget):
         self.input_quant.setPlaceholderText("Ex: 1")
         form.addRow("Quantidade de geradores:", self.input_quant)
 
+        # Campos adicionais solicitados
+        self.input_data_entrega = QLineEdit()
+        self.input_data_entrega.setPlaceholderText("Ex: dd/mm/aaaa")
+        form.addRow("Data de entrega:", self.input_data_entrega)
+
+        self.combo_icms = QComboBox()
+        self.combo_icms.addItems(["Sim", "Não"]) 
+        form.addRow("Cliente contribuinte de ICMS:", self.combo_icms)
+
+        self.input_grupo_gerador = QLineEdit()
+        self.input_grupo_gerador.setPlaceholderText("Ex: Grupo XYZ")
+        form.addRow("Grupo Gerador:", self.input_grupo_gerador)
+
+        self.input_potencia_standby = QLineEdit()
+        self.input_potencia_standby.setPlaceholderText("Ex: 100 (kVA)")
+        form.addRow("Potência Standby (kVA):", self.input_potencia_standby)
+
+        self.input_codigo_finame = QLineEdit()
+        self.input_codigo_finame.setPlaceholderText("Ex: 123456")
+        form.addRow("Código FINAME:", self.input_codigo_finame)
+
+        self.input_potencia_continua = QLineEdit()
+        self.input_potencia_continua.setPlaceholderText("Ex: 95 (kVA)")
+        form.addRow("Potência Contínua (kVA):", self.input_potencia_continua)
+
+        self.input_marca = QLineEdit()
+        self.input_marca.setPlaceholderText("Ex: Caterpillar")
+        form.addRow("Marca:", self.input_marca)
+
+        self.input_painel = QLineEdit()
+        self.input_painel.setPlaceholderText("Ex: AMF / ATS / Painel X")
+        form.addRow("Painel:", self.input_painel)
+
+        self.input_cor = QLineEdit()
+        self.input_cor.setPlaceholderText("Ex: Branco")
+        form.addRow("Cor:", self.input_cor)
+
+        self.input_n_polos = QLineEdit()
+        self.input_n_polos.setPlaceholderText("Ex: 4")
+        form.addRow("Nº de polos:", self.input_n_polos)
+
+        self.input_chave_qta = QLineEdit()
+        self.input_chave_qta.setPlaceholderText("Ex: Chave X - QTA com...")
+        form.addRow("Chave de transferência do QTA:", self.input_chave_qta)
+
+        # Botões
         btn_criar_orcamento = QPushButton("Criar Orçamento")
         btn_criar_orcamento.setObjectName("btn-criar")
         btn_criar_orcamento.clicked.connect(lambda: print(self.get_form_data()))
 
-        
+        btn_gerar_motor = QPushButton("Gerar Motor Recomendado")
+        btn_gerar_motor.setObjectName("btn-gerar")
+        btn_gerar_motor.clicked.connect(self.gerar_motor)
 
         btns_layout = QHBoxLayout()
-        btns_layout.setSpacing(12)
+        btns_layout.addWidget(btn_criar_orcamento)
+        btns_layout.addWidget(btn_gerar_motor)
 
         card_layout.addLayout(btns_layout)
-        card.setLayout(card_layout)
 
+        card.setLayout(card_layout)
         main_layout.addWidget(card)
 
         footer = QLabel("Preencha as informações acima para que possamos montar o orçamento técnico-comercial.")
@@ -138,7 +187,6 @@ class OrçamentoWidget(QWidget):
         main_layout.addWidget(footer)
 
         self.setLayout(main_layout)
-  
 
     def get_form_data(self):
         data = {
@@ -153,37 +201,65 @@ class OrçamentoWidget(QWidget):
             "tensao": self.combo_tensao.currentText(),
             "tipo_gerador": self.combo_tipo.currentText(),
             "partida": self.combo_partida.currentText(),
-            "observacoes": self.input_obs.toPlainText().strip()
+            "observacoes": self.input_obs.toPlainText().strip(),
+            "quantidade": self.input_quant.text().strip(),
+            # Campos adicionais
+            "data_entrega": self.input_data_entrega.text().strip(),
+            "icms_contribuinte": self.combo_icms.currentText() if hasattr(self, 'combo_icms') else "",
+            "grupo_gerador": self.input_grupo_gerador.text().strip() if hasattr(self, 'input_grupo_gerador') else "",
+            "potencia_standby": self.input_potencia_standby.text().strip() if hasattr(self, 'input_potencia_standby') else "",
+            "codigo_finame": self.input_codigo_finame.text().strip() if hasattr(self, 'input_codigo_finame') else "",
+            "potencia_continua": self.input_potencia_continua.text().strip() if hasattr(self, 'input_potencia_continua') else "",
+            "marca": self.input_marca.text().strip() if hasattr(self, 'input_marca') else "",
+            "painel": self.input_painel.text().strip() if hasattr(self, 'input_painel') else "",
+            "cor": self.input_cor.text().strip() if hasattr(self, 'input_cor') else "",
+            "n_polos": self.input_n_polos.text().strip() if hasattr(self, 'input_n_polos') else "",
+            "chave_qta": self.input_chave_qta.text().strip() if hasattr(self, 'input_chave_qta') else ""
         }
         return data
 
-    def validar(self, data):
-        # valida campos essenciais
-        erros = []
-        if not data['nome']:
-            erros.append("Nome")
-        if not data['email']:
-            erros.append("Email")
-        if not data['cidade_estado']:
-            erros.append("Cidade / Estado")
-        if not data['potencia_kva']:
-            erros.append("Potência (kVA)")
-        return erros
+    def gerar_motor(self):
+        data = self.get_form_data()
 
-    def limpar_form(self):
-        self.input_nome.clear()
-        self.input_cargo.clear()
-        self.input_email.clear()
-        self.input_cidade.clear()
-        self.input_doc.clear()
-        self.input_kva.clear()
-        self.input_esp.clear()
-        self.combo_fase.setCurrentIndex(0)
-        self.combo_tensao.setCurrentIndex(0)
-        self.combo_tipo.setCurrentIndex(0)
-        self.combo_partida.setCurrentIndex(0)
-        self.input_obs.clear()
-        self.input_quant.clear()
+        try:
+            potencia_num = int(data["potencia_kva"])
+        except:
+            potencia_num = 0
+
+        # Prepara respostas no formato exigido pelo recomendador
+        respostas = {
+            "potencia": potencia_num,
+            "tensao": int(data["tensao"].split("/")[0].replace("V", "")) if "/" in data["tensao"] else 0,
+            "combustivel": "diesel",   # até adicionar no formulário
+            "rpm": 1800,
+            "fase": 3 if data["fase"] == "Trifásico" else 2 if data["fase"] == "Bifásico" else 1,
+            "frequencia": 60,
+            "arranque": "direto" if "Automática" in data["partida"] else "manual"
+        }
+
+        motor, pontos = recomendar_motor(respostas)
+
+        msg = QMessageBox()
+        msg.setWindowTitle("Resultado — Motor Recomendado")
+
+        if motor:
+            texto = (
+                f"Melhor Motor Encontrado:\n\n"
+                f"Nome: {motor['nome']}\n"
+                f"Potência: {motor['potencia']} W\n"
+                f"Tensão: {motor['tensao']} V\n"
+                f"Combustível: {motor['tipo_combustivel']}\n"
+                f"RPM: {motor['rpm']}\n"
+                f"Fase: {motor['fase']}\n"
+                f"Frequência: {motor['frequencia']} Hz\n"
+                f"Arranque: {motor['tipo_arranque']}\n\n"
+                f"Pontuação: {pontos}"
+            )
+        else:
+            texto = "Nenhum motor compatível encontrado."
+
+        msg.setText(texto)
+        msg.exec_()
 
     def get_styles(self):
         return """
@@ -226,7 +302,6 @@ class OrçamentoWidget(QWidget):
         #footer { color: #9fb3d6; font-size: 12px; margin-top: 8px }
         """
 
-    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
